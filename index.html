@@ -111,7 +111,7 @@
             }
         }
 
-    function detectBlackObject() {
+    function detectBlackSquare() {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -136,12 +136,8 @@
         }
     }
 
-    // Show or hide D-pad
-    dPad.style.display = blackDetected ? "flex" : "none";
-
-    // Draw bounding boxes
-    ctx.strokeStyle = "yellow"; // Yellow for visibility
-    ctx.lineWidth = 3;
+    let showDPad = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (objects.length > 0) {
         let minX = Math.min(...objects.map(o => o.x));
@@ -152,15 +148,25 @@
         let width = maxX - minX;
         let height = maxY - minY;
 
-        ctx.strokeRect(minX, minY, width, height);
+        // Check if detected shape is approximately square
+        let aspectRatio = width / height;
+        if (aspectRatio > 0.8 && aspectRatio < 1.2) { 
+            showDPad = true;
+            ctx.strokeStyle = "yellow";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(minX, minY, width, height);
+        }
     }
 
-    requestAnimationFrame(detectBlackObject);
+    // Show or hide D-pad based on square detection
+    dPad.style.display = showDPad ? "flex" : "none";
+
+    requestAnimationFrame(detectBlackSquare);
 }
 
 // Start everything
 startCamera().then(() => {
-    video.addEventListener('loadeddata', detectBlackObject);
+    video.addEventListener('loadeddata', detectBlackSquare);
 });
 
     </script>
